@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="aia-plugin-googlemaps" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>aia-plugin-googlemaps</name>
+    <js-module name="aia-plugin-googlemaps" src="www/aia-plugin-googlemaps.js">
+        <clobbers target="cordova.plugins.aia-plugin-googlemaps" />
+    </js-module>
+</plugin>
