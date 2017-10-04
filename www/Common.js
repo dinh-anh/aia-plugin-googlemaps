@@ -24,18 +24,19 @@ function isHTMLColorString(inputValue) {
 function deleteFromObject(object, type) {
     if (object === null) return object;
     if (typeof object !== "object") {
-      return object;
+        return object;
     }
-    for(var index in Object.keys(object)) {
+    for (var index in Object.keys(object)) {
         var key = Object.keys(object)[index];
         if (typeof object[key] === 'object') {
-           object[key] = deleteFromObject(object[key], type);
+            object[key] = deleteFromObject(object[key], type);
         } else if (typeof object[key] === type) {
-           delete object[key];
+            delete object[key];
         }
     }
     return object;
 }
+
 function HTMLColor2RGBA(colorValue, defaultOpacity) {
     defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
     if (colorValue instanceof Array) {
@@ -206,101 +207,102 @@ function getDivRect(div) {
     }
     var rect;
     if (div === document.body) {
-      rect = div.getBoundingClientRect();
-      rect.left = Math.max(rect.left, window.pageOffsetX);
-      rect.top = Math.max(rect.top, window.pageOffsetY);
-      rect.width = Math.max(rect.width, window.innerWidth);
-      rect.height = Math.max(rect.height, window.innerHeight);
+        rect = div.getBoundingClientRect();
+        rect.left = Math.max(rect.left, window.pageOffsetX);
+        rect.top = Math.max(rect.top, window.pageOffsetY);
+        rect.width = Math.max(rect.width, window.innerWidth);
+        rect.height = Math.max(rect.height, window.innerHeight);
     } else {
-      rect = div.getBoundingClientRect();
+        rect = div.getBoundingClientRect();
     }
     return {
-      left: rect.left,
-      top: rect.top,
-      width: rect.width,
-      height: rect.height
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height
     };
 }
 
 var ignoreTags = [
-  "pre", "textarea", "p", "form", "input", "caption", "canvas", "svg"
+    "pre", "textarea", "p", "form", "input", "caption", "canvas", "svg"
 ];
-var ignoreClasses = ["nav-decor"];
+var ignoreClasses = ["nav-decor", "map-ignore"];
 
 function shouldWatchByNative(node) {
-  if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
-    if (node === document.body) {
-      return true;
+    if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
+        if (node === document.body) {
+            return true;
+        }
+        return false;
     }
-    return false;
-  }
 
-  var tagName = node.tagName.toLowerCase();
-  if (ignoreTags.indexOf(tagName) == -1) {
+    var tagName = node.tagName.toLowerCase();
+    if (ignoreTags.indexOf(tagName) == -1) {
 
-    var classNames = (node.className || "").split(" ");
-    var matches = classNames.filter(function(clsName) {
-      return ignoreClasses.indexOf(clsName) !== -1;
-    });
-    if (matches && matches.length > 0) {
-      return false;
+        var classNames = (node.className || "").split(" ");
+        var matches = classNames.filter(function(clsName) {
+            return ignoreClasses.indexOf(clsName) !== -1;
+        });
+        if (matches && matches.length > 0) {
+            return false;
+        }
+    } else {
+        return false;
     }
-  } else {
-    return false;
-  }
 
-  var visibilityCSS = getStyle(node, 'visibility');
-  var displayCSS = getStyle(node, 'display');
-  var opacityCSS = getStyle(node, 'opacity');
-  opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
-  var clickableSize = (
-    node.offsetHeight > 0 && node.offsetWidth > 0 ||
-    node.clientHeight > 0 && node.clientWidth > 0 ||
-    node.clientHeight === 0 && node.clientWidth === 0 &&
+    var visibilityCSS = getStyle(node, 'visibility');
+    var displayCSS = getStyle(node, 'display');
+    var opacityCSS = getStyle(node, 'opacity');
+    opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
+    var clickableSize = (
+        node.offsetHeight > 0 && node.offsetWidth > 0 ||
+        node.clientHeight > 0 && node.clientWidth > 0 ||
+        node.clientHeight === 0 && node.clientWidth === 0 &&
         node.className.indexOf("_gmaps_cdv_") > -1);
-  return displayCSS !== "none" &&
-    opacityCSS > 0 && visibilityCSS !== "hidden" &&
-    clickableSize;
+    return displayCSS !== "none" &&
+        opacityCSS > 0 && visibilityCSS !== "hidden" &&
+        clickableSize;
 }
 
 
 // Get z-index order
 // http://stackoverflow.com/a/24136505
 var internalCache = {};
+
 function getZIndex(dom) {
     if (dom === document.body) {
-      internalCache = undefined;
-      internalCache = {};
+        internalCache = undefined;
+        internalCache = {};
     }
     var z = null;
     if (!dom) {
-      return 0;
+        return 0;
     }
 
     if (window.getComputedStyle) {
-      try {
-        z = parseInt(document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index'), 10);
-      } catch(e) {}
+        try {
+            z = parseInt(document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index'), 10);
+        } catch (e) {}
     }
     if (dom.currentStyle) {
         z = parseInt(dom.currentStyle['z-index']);
     }
     if (dom === document.body && z === "auto") {
-      z = 0;
+        z = 0;
     }
     if (isNaN(z)) {
         z = 0;
     }
     var parentNode = dom.parentNode;
     if (parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
-      var parentElemId = parentNode.getAttribute("__pluginDomId");
-      if (parentElemId in internalCache) {
-        z += internalCache[parentElemId];
-      } else {
-        var parentZIndex = getZIndex(dom.parentNode);
-        internalCache[parentElemId] = parentZIndex;
-        z += parentZIndex;
-      }
+        var parentElemId = parentNode.getAttribute("__pluginDomId");
+        if (parentElemId in internalCache) {
+            z += internalCache[parentElemId];
+        } else {
+            var parentZIndex = getZIndex(dom.parentNode);
+            internalCache[parentElemId] = parentZIndex;
+            z += parentZIndex;
+        }
     }
     var elemId = dom.getAttribute("__pluginDomId");
     internalCache[elemId] = z;
@@ -310,31 +312,30 @@ function getZIndex(dom) {
 
 function getDomDepth(dom, idx, parentZIndex, parentDepth, floorLevel) {
     if (dom.nodeType !== Node.ELEMENT_NODE) {
-      return 0;
+        return 0;
     }
     var orgDom = dom;
     var zIndex = parentZIndex + getZIndex(dom);
-/*
-    var depth = 0;
-    while (dom.parentNode !== null && dom.parentNode != document) {
-        dom = dom.parentNode;
-        depth++;
-    }
-*/
+    /*
+        var depth = 0;
+        while (dom.parentNode !== null && dom.parentNode != document) {
+            dom = dom.parentNode;
+            depth++;
+        }
+    */
     //var result = ((zIndex + 1) << (depth + 1)) + idx;
-    var result = (parentDepth + ((zIndex + 1) / (floorLevel + 1)) + idx) - 0.01 ;
+    var result = (parentDepth + ((zIndex + 1) / (floorLevel + 1)) + idx) - 0.01;
     //orgDom.setAttribute("_depth", result); // for debugging
     return result;
 }
 
 // Get CSS value of an element
 // http://stackoverflow.com/a/1388022
-function getStyle(element, styleProperty)
-{
+function getStyle(element, styleProperty) {
     if (window.getComputedStyle) {
-        return document.defaultView.getComputedStyle(element,null).getPropertyValue(styleProperty);
+        return document.defaultView.getComputedStyle(element, null).getPropertyValue(styleProperty);
     } else if (element.currentStyle) {
-      return element.currentStyle[styleProperty];
+        return element.currentStyle[styleProperty];
     }
     return;
 }
@@ -503,22 +504,22 @@ function defaultTrueOption(value) {
 
 function createMvcArray(array) {
     if (!array) {
-      return new BaseArrayClass();
+        return new BaseArrayClass();
     }
     if (array.type === "BaseArrayClass") {
-      return array;
+        return array;
     }
 
     var mvcArray;
     if (array.type === "LatLngBounds") {
-      array = [
-          array.southwest,
-          {lat: array.northeast.lat, lng: array.southwest.lng},
-          array.northeast,
-          {lat: array.southwest.lat, lng: array.northeast.lng},
-          array.southwest
+        array = [
+            array.southwest,
+            { lat: array.northeast.lat, lng: array.southwest.lng },
+            array.northeast,
+            { lat: array.southwest.lat, lng: array.northeast.lng },
+            array.southwest
         ];
-      array = array.map(getLatLng);
+        array = array.map(getLatLng);
     }
 
     if (array && typeof array.getArray === "function") {
@@ -544,83 +545,84 @@ function createMvcArray(array) {
 }
 
 function getLatLng(target) {
-  return "getPosition" in target ? target.getPosition() : {
-    "lat": target.lat,
-    "lng": target.lng
-  };
+    return "getPosition" in target ? target.getPosition() : {
+        "lat": target.lat,
+        "lng": target.lng
+    };
 }
+
 function convertToPositionArray(array) {
-  array = array || [];
+    array = array || [];
 
-  if (!utils.isArray(array)) {
-    if (array.type === "LatLngBounds") {
-      array = [
-        array.southwest,
-        {lat: array.northeast.lat, lng: array.southwest.lng},
-        array.northeast,
-        {lat: array.southwest.lat, lng: array.northeast.lng},
-        array.southwest
-      ];
-    } else if (array && typeof array.getArray === "function") {
-      array = array.getArray();
-    } else {
-      array = [array];
+    if (!utils.isArray(array)) {
+        if (array.type === "LatLngBounds") {
+            array = [
+                array.southwest,
+                { lat: array.northeast.lat, lng: array.southwest.lng },
+                array.northeast,
+                { lat: array.southwest.lat, lng: array.northeast.lng },
+                array.southwest
+            ];
+        } else if (array && typeof array.getArray === "function") {
+            array = array.getArray();
+        } else {
+            array = [array];
+        }
     }
-  }
 
-  array = array.map(getLatLng);
+    array = array.map(getLatLng);
 
-  return array;
+    return array;
 }
 
 function markerOptionsFilter(markerOptions) {
-  markerOptions = markerOptions || {};
+    markerOptions = markerOptions || {};
 
-  markerOptions.animation = markerOptions.animation || undefined;
-  markerOptions.position = markerOptions.position || {};
-  markerOptions.position.lat = markerOptions.position.lat || 0.0;
-  markerOptions.position.lng = markerOptions.position.lng || 0.0;
-  markerOptions.draggable = markerOptions.draggable === true;
-  markerOptions.icon = markerOptions.icon || undefined;
-  markerOptions.zIndex = markerOptions.zIndex || 0;
-  markerOptions.snippet = typeof(markerOptions.snippet) === "string" ? markerOptions.snippet : undefined;
-  markerOptions.title = typeof(markerOptions.title) === "string" ? markerOptions.title : undefined;
-  markerOptions.visible = defaultTrueOption(markerOptions.visible);
-  markerOptions.flat = markerOptions.flat === true;
-  markerOptions.rotation = markerOptions.rotation || 0;
-  markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
-  markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
-  markerOptions.noCache = markerOptions.noCache === true; //experimental
-  if (typeof markerOptions.icon === "object") {
-    if ("anchor" in markerOptions.icon &&
-      !Array.isArray(markerOptions.icon.anchor) &&
-      "x" in markerOptions.icon.anchor &&
-      "y" in markerOptions.icon.anchor) {
-      markerOptions.icon.anchor = [markerOptions.icon.anchor.x, markerOptions.icon.anchor.y];
+    markerOptions.animation = markerOptions.animation || undefined;
+    markerOptions.position = markerOptions.position || {};
+    markerOptions.position.lat = markerOptions.position.lat || 0.0;
+    markerOptions.position.lng = markerOptions.position.lng || 0.0;
+    markerOptions.draggable = markerOptions.draggable === true;
+    markerOptions.icon = markerOptions.icon || undefined;
+    markerOptions.zIndex = markerOptions.zIndex || 0;
+    markerOptions.snippet = typeof(markerOptions.snippet) === "string" ? markerOptions.snippet : undefined;
+    markerOptions.title = typeof(markerOptions.title) === "string" ? markerOptions.title : undefined;
+    markerOptions.visible = defaultTrueOption(markerOptions.visible);
+    markerOptions.flat = markerOptions.flat === true;
+    markerOptions.rotation = markerOptions.rotation || 0;
+    markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+    markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
+    markerOptions.noCache = markerOptions.noCache === true; //experimental
+    if (typeof markerOptions.icon === "object") {
+        if ("anchor" in markerOptions.icon &&
+            !Array.isArray(markerOptions.icon.anchor) &&
+            "x" in markerOptions.icon.anchor &&
+            "y" in markerOptions.icon.anchor) {
+            markerOptions.icon.anchor = [markerOptions.icon.anchor.x, markerOptions.icon.anchor.y];
+        }
+        if ("infoWindowAnchor" in markerOptions.icon &&
+            !Array.isArray(markerOptions.icon.infoWindowAnchor) &&
+            "x" in markerOptions.icon.infoWindowAnchor &&
+            "y" in markerOptions.icon.infoWindowAnchor) {
+            markerOptions.icon.infoWindowAnchor = [markerOptions.icon.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
+        }
     }
-    if ("infoWindowAnchor" in markerOptions.icon &&
-      !Array.isArray(markerOptions.icon.infoWindowAnchor) &&
-      "x" in markerOptions.icon.infoWindowAnchor &&
-      "y" in markerOptions.icon.infoWindowAnchor) {
-      markerOptions.icon.infoWindowAnchor = [markerOptions.icon.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
+
+    if ("styles" in markerOptions) {
+        markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
+
+        if ("color" in markerOptions.styles) {
+            markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
+        }
     }
-  }
-
-  if ("styles" in markerOptions) {
-      markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
-
-      if ("color" in markerOptions.styles) {
-          markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
-      }
-  }
-  if (markerOptions.icon && isHTMLColorString(markerOptions.icon)) {
-      markerOptions.icon = HTMLColor2RGBA(markerOptions.icon);
-  }
-  if (markerOptions.icon && markerOptions.icon.label &&
-    isHTMLColorString(markerOptions.icon.label.color)) {
-      markerOptions.icon.label.color = HTMLColor2RGBA(markerOptions.icon.label.color);
-  }
-  return markerOptions;
+    if (markerOptions.icon && isHTMLColorString(markerOptions.icon)) {
+        markerOptions.icon = HTMLColor2RGBA(markerOptions.icon);
+    }
+    if (markerOptions.icon && markerOptions.icon.label &&
+        isHTMLColorString(markerOptions.icon.label.color)) {
+        markerOptions.icon.label.color = HTMLColor2RGBA(markerOptions.icon.label.color);
+    }
+    return markerOptions;
 }
 
 module.exports = {
